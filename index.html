@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NCM 转换器</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <main id="app">
+      <!-- 工具栏 -->
+      <header class="toolbar">
+        <button id="btn-add-files" class="btn" type="button">添加文件</button>
+        <div class="btn-group">
+          <button id="btn-add-folder" class="btn" type="button">添加目录</button>
+          <button id="btn-quick-import" class="btn btn-dropdown" type="button" title="快速导入：本机网易云目录与历史目录">▾</button>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <button id="btn-clear" class="btn" type="button">清除列表</button>
+        <button id="btn-convert" class="btn btn-primary" type="button">开始处理</button>
+      </header>
+
+      <!-- 保存位置 -->
+      <section class="panel save-location">
+        <span class="panel-label">保存位置</span>
+        <label class="radio"><input type="radio" name="save-mode" value="source" /> 源文件所在目录</label>
+        <label class="radio"><input type="radio" name="save-mode" value="custom" /> 自定义保存目录</label>
+        <label class="radio"><input type="radio" name="save-mode" value="library" /> 归档到音乐库</label>
+
+        <div class="dir-row" id="custom-dir-row" hidden>
+          <input id="custom-dir-input" class="dir-input" readonly placeholder="点击右侧按钮选择目录…" />
+          <button id="btn-pick-custom" class="btn btn-compact" type="button">选择…</button>
+        </div>
+        <div class="dir-row" id="library-dir-row" hidden>
+          <input id="library-dir-input" class="dir-input" readonly placeholder="点击右侧按钮选择音乐库目录…" />
+          <button id="btn-pick-library" class="btn btn-compact" type="button">选择…</button>
+        </div>
+      </section>
+
+      <!-- 设置（可折叠） -->
+      <section class="panel settings">
+        <button id="btn-toggle-settings" class="settings-toggle" type="button">
+          <span class="chevron">▸</span> 设置
+        </button>
+        <div id="settings-body" class="settings-body" hidden>
+          <div class="settings-grid">
+            <label class="setting-item setting-wide">
+              <span class="setting-label">命名模板</span>
+              <input id="set-naming-template" class="text-input" type="text" spellcheck="false" />
+              <span class="setting-hint">占位符：{artist} {title} {album} {track} {disc} {year} {bitrate}；扩展名按实际格式自动添加</span>
+            </label>
+            <label class="setting-item setting-wide">
+              <span class="setting-label">音乐库归档结构</span>
+              <input id="set-archive-structure" class="text-input" type="text" spellcheck="false" />
+              <span class="setting-hint">库内子目录模板，如 {artist}/{album}</span>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">并行转换数</span>
+              <input id="set-workers" class="text-input num" type="number" min="0" max="64" />
+              <span class="setting-hint">0 = 自动（CPU 核数）</span>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">同名冲突时</span>
+              <select id="set-dedupe" class="text-input">
+                <option value="skip">跳过已存在</option>
+                <option value="overwrite">覆盖</option>
+                <option value="rename">另存为 (2)</option>
+              </select>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">转换后源文件</span>
+              <select id="set-source-action" class="text-input">
+                <option value="keep">保留</option>
+                <option value="recycle">移入回收站</option>
+                <option value="delete">直接删除</option>
+              </select>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">封面来源</span>
+              <select id="set-cover-strategy" class="text-input">
+                <option value="auto">内嵌 → 网络补拉</option>
+                <option value="embedded">仅内嵌封面</option>
+              </select>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">网络超时（秒）</span>
+              <input id="set-timeout" class="text-input num" type="number" min="1" max="120" />
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">失败重试次数</span>
+              <input id="set-retries" class="text-input num" type="number" min="0" max="10" />
+            </label>
+            <div class="setting-item setting-checks">
+              <label class="check"><input id="set-net-enabled" type="checkbox" /> 网络补全元数据（音轨号/碟号/年份/专辑歌手）</label>
+              <label class="check"><input id="set-lyrics-enabled" type="checkbox" /> 嵌入歌词（原文 + 翻译）</label>
+              <label class="check"><input id="set-album-artist" type="checkbox" /> 写入专辑歌手</label>
+              <label class="check"><input id="set-recursive" type="checkbox" /> 添加目录时递归子目录</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 文件列表 -->
+      <section class="file-list">
+        <div class="list-header">
+          <span class="col-status">状态</span>
+          <span class="col-file">文件</span>
+          <span class="col-op">操作</span>
+        </div>
+        <div class="list-body" id="file-list-body">
+          <div class="drop-hint" id="drop-hint">
+            <div class="drop-icon">🎵</div>
+            <div>拖放 .ncm 文件或文件夹到窗口，或使用上方按钮添加</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 状态栏 -->
+      <footer class="statusbar">
+        <span id="status-summary">共 0 个文件</span>
+        <span id="status-result" class="status-result"></span>
+        <div class="toolbar-spacer"></div>
+        <button id="btn-open-dir" class="btn btn-compact" type="button">打开输出目录</button>
+      </footer>
+    </main>
+  </body>
+</html>

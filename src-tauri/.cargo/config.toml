@@ -1,0 +1,14 @@
+# 项目级 cargo 配置：crates.io 走 rsproxy.cn 国内稀疏镜像
+# （仅对本项目生效，不改动全局 ~/.cargo/config.toml）
+
+[source.crates-io]
+replace-with = 'rsproxy-sparse'
+
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+
+[registries.rsproxy]
+index = "sparse+https://rsproxy.cn/index/"
+
+[net]
+git-fetch-with-cli = true

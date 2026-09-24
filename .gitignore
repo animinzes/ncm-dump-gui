@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Rust / Tauri
+src-tauri/target
+src-tauri/Cargo.lock
+src-tauri/gen
+
+# 上游参考（C++ 原版仓库 + 界面截图），不属于本项目代码
+ncmdump/
+reference-gui-screenshot.png
+
+# 本地测试产物
+test-output/
+*.ncm
+*.mp3
+*.flac
+
+# AI 工具会话目录
+.v2c/
+.video_agent/
+.zcode/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
