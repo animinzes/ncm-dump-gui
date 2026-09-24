@@ -1,4 +1,4 @@
-//! animinzes ncm-dump-gui：网易云音乐 ncm 转换器（丰富元数据版）
+//! ncm-dump-gui：网易云音乐 ncm 转换器（丰富元数据版）
 
 pub mod commands;
 pub mod config;

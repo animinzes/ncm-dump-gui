@@ -12,9 +12,6 @@ use std::path::{Path, PathBuf};
 pub const APP_IDENTIFIER: &str = "com.animinzes.ncm-dump-gui";
 const CONFIG_FILE: &str = "config.json";
 
-/// 用户个人音乐库根目录（初始设置，已按用户选择定制）
-const DEFAULT_LIBRARY_DIR: &str = r"D:\File\Properties\Anthology of life\私の音楽\音乐";
-
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct AppConfig {
@@ -55,9 +52,9 @@ pub struct OutputConfig {
 impl Default for OutputConfig {
     fn default() -> Self {
         Self {
-            mode: OutputMode::Library,
+            mode: OutputMode::Source,
             custom_dir: String::new(),
-            library_dir: DEFAULT_LIBRARY_DIR.to_string(),
+            library_dir: String::new(),
             naming_template: "{title}".to_string(),
             archive_structure: "{artist}/{album}".to_string(),
             dedupe: DedupePolicy::Skip,
@@ -246,8 +243,8 @@ mod tests {
     fn default_matches_spec() {
         let c = AppConfig::default();
         assert_eq!(c.version, 1);
-        assert_eq!(c.output.mode, OutputMode::Library);
-        assert_eq!(c.output.library_dir, DEFAULT_LIBRARY_DIR);
+        assert_eq!(c.output.mode, OutputMode::Source);
+        assert_eq!(c.output.library_dir, "");
         assert_eq!(c.output.naming_template, "{title}");
         assert_eq!(c.output.archive_structure, "{artist}/{album}");
         assert_eq!(c.output.dedupe, DedupePolicy::Skip);
@@ -293,7 +290,7 @@ mod tests {
         fs::write(&path, "{\"output\":{\"naming_template\":\"{title} - x\"}}").unwrap();
         let cfg = load(Some(&path));
         assert_eq!(cfg.output.naming_template, "{title} - x");
-        assert_eq!(cfg.output.mode, OutputMode::Library);
+        assert_eq!(cfg.output.mode, OutputMode::Source);
         assert!(cfg.metadata.net_enabled);
         assert_eq!(cfg.network.timeout_secs, 10);
         let _ = fs::remove_dir_all(&dir);
@@ -315,7 +312,7 @@ mod tests {
     fn enum_serialization_is_snake_case() {
         let c = AppConfig::default();
         let json = serde_json::to_string(&c).unwrap();
-        assert!(json.contains("\"mode\":\"library\""));
+        assert!(json.contains("\"mode\":\"source\""));
         assert!(json.contains("\"source_after_success\":\"keep\""));
         assert!(json.contains("\"dedupe\":\"skip\""));
         assert!(json.contains("\"cover_strategy\":\"auto\""));

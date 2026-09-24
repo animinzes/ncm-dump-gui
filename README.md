@@ -1,4 +1,4 @@
-# animinzes NCM Dump GUI
+# NCM Dump GUI
 
 网易云音乐 `.ncm` 文件转换器（mp3 / flac），Tauri 2 + Rust 实现，界面风格参考 [taurusxin/ncmdump-gui](https://git.taurusxin.com/taurusxin/ncmdump-gui)，核心算法移植自 [taurusxin/ncmdump](https://github.com/taurusxin/ncmdump)（C++ 版），元数据能力全面超越两者。
 
